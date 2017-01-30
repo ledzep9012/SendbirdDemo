@@ -1,5 +1,6 @@
 package com.mindfire.sendbirddemo;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -38,7 +39,7 @@ public class UserListActivity extends AppCompatActivity {
     private String mUserId;
     private UserListQuery mUserListQuery;
     private ProgressBar mProgressBar;
-
+    private ProgressDialog mProgressDialog;
     private List<User> mUsersList;
 
     @Override
@@ -63,8 +64,9 @@ public class UserListActivity extends AppCompatActivity {
         // Initialising Sendbird SDK
         SendBird.init(AppDetails.APP_ID, mContext);
 
-        mProgressBar.setVisibility(View.VISIBLE);
 
+        //mProgressBar.setVisibility(View.VISIBLE);
+        showProgress();
         SendBird.connect(mUserId, new SendBird.ConnectHandler() {
             @Override
             public void onConnected(User user, SendBirdException e) {
@@ -76,12 +78,22 @@ public class UserListActivity extends AppCompatActivity {
                 Toast.makeText(UserListActivity.this, "The app has connected", Toast.LENGTH_SHORT).show();
 
                 // Progress Bar Ends here
-                mProgressBar.setVisibility(View.GONE);
+                //mProgressBar.setVisibility(View.GONE);
 
                 // Fill users list
                 fillUsersList();
             }
         });
+    }
+
+
+    private void showProgress() {
+        mProgressDialog = new ProgressDialog(mContext);
+        mProgressDialog.setMessage("Waiting");
+        mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        mProgressDialog.setIndeterminate(true);
+        mProgressDialog.setProgress(0);
+        mProgressDialog.show();
     }
 
     private void fillUsersList() {
@@ -121,6 +133,8 @@ public class UserListActivity extends AppCompatActivity {
                             android.R.layout.simple_list_item_1, android.R.id.text1,
                             userNames);
                     mUsersListView.setAdapter(adapter);
+
+                    mProgressDialog.dismiss();
 
                     mUsersListView.setOnItemClickListener(new ListView.OnItemClickListener() {
                         @Override
